@@ -1,7 +1,6 @@
-## Ideas 
+## Idea
 
-- Mask RCNN (https://www.kaggle.com/hmendonca/airbus-mask-rcnn-and-coco-transfer-learning), YOLO (https://www.kaggle.com/smrutiranjanparida/yolov3-ship-detection), mmdetection (https://github.com/open-mmlab/mmdetection)
-
+Create a detectron2 framework for ship detection kaggle competition. So that it will be easily amendable for any instance/object detection 
 
 # Overview of the project.
 
@@ -22,24 +21,20 @@ https://github.com/Kaggle/kaggle-api
 
 ## Pipeline 
 
-*** Open to discussion***
-Data > Augmentation/Regularization > Instance Segmentation/Object Detection > Performance Validations on test > Predictions on val    
+Data Loader > Augmentations (Detectron2) > Instance Segmentation/Object Detection (Detectron2) > Performance Validations on test (Detectron2 - While training) > Predictions on val > Kaggle submission.    
 
 ## Data and Data Augmentation
 
-
-*** Open to discussion***
 - Data modelled around architecture inputs. 
 - Flips horisontal and vertical and randomized brightness (to lessen impacts of shadows - widely used in remote sensing pipelines)
- 
 
 ## Architecture
 
-*** Open to discussion *** 
+Detectron2, which is pased on pytorch
 
 ## Validation
 
-*** Open to discussion ***  
+Turing training use a small sample of ~4k pictures for validation. 
 
 ## Deadlines:
 - Intermediate presentation: **Nov 16 - 18**
