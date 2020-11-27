@@ -1,7 +1,6 @@
-## Ideas 
+## Idea
 
-- Mask RCNN (https://www.kaggle.com/hmendonca/airbus-mask-rcnn-and-coco-transfer-learning), YOLO (https://www.kaggle.com/smrutiranjanparida/yolov3-ship-detection), mmdetection (https://github.com/open-mmlab/mmdetection)
-
+Create a detectron2 framework for ship detection kaggle competition. So that it will be easily amendable for any instance/object detection 
 
 # Overview of the project.
 
@@ -9,7 +8,7 @@ ML_ShipDetection: https://www.kaggle.com/c/airbus-ship-detection
 
 - Chat: **Slack**  
 - Presentation 1: https://docs.google.com/presentation/d/1_MTQrBv8DQUJU2GY-gv-JzXXjAE8QjjIL-3lfwh7tqA/edit?usp=sharing
-- Presentation 2: ***
+- Presentation 2: https://docs.google.com/presentation/d/1O3DLAQ9SKukEivKACH7JCZqiKiia6ratmZuc1KuovQk/edit?usp=sharing
 
 ## Data: 30GB of pictures
 
@@ -22,24 +21,20 @@ https://github.com/Kaggle/kaggle-api
 
 ## Pipeline 
 
-*** Open to discussion***
-Data > Augmentation/Regularization > Instance Segmentation/Object Detection > Performance Validations on test > Predictions on val    
+Data Loader > Augmentations (Detectron2) > Instance Segmentation/Object Detection (Detectron2) > Performance Validations on test (Detectron2 - While training) > Predictions on val > Kaggle submission.    
 
 ## Data and Data Augmentation
 
-
-*** Open to discussion***
 - Data modelled around architecture inputs. 
 - Flips horisontal and vertical and randomized brightness (to lessen impacts of shadows - widely used in remote sensing pipelines)
- 
 
 ## Architecture
 
-*** Open to discussion *** 
+Detectron2, which is pased on pytorch
 
 ## Validation
 
-*** Open to discussion ***  
+Turing training use a small sample of ~4k pictures for validation. 
 
 ## Deadlines:
 - Intermediate presentation: **Nov 16 - 18**
@@ -51,3 +46,16 @@ Data > Augmentation/Regularization > Instance Segmentation/Object Detection > Pe
   -quality of presentation (30%),
   -degree to which you have completed the initial task (25%),
   -being on time (5%).
+
+## Project completion steps 
+
+- [X] Kaggle proptotype 
+- [X] Initial presentation
+- [X] Data Loader
+- [X] Training module
+- [X] Add data Augmentations
+- [ ] Submittion module
+- [ ] Dockerize project
+- [ ] Train on cluster
+- [ ] Inference
+- [ ] Submit 
