@@ -1,4 +1,8 @@
+# installation
+
 #pip install -q -U torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install -q
+
 
 ## import
 
@@ -7,8 +11,10 @@ import copy
 import cv2
 import json
 import pycocotools
-import detectron2
 import random
+import torch
+import torchvision
+import detectron2
 
 import numpy as np
 import pandas as pd
@@ -18,6 +24,8 @@ from tqdm import tqdm
 from pathlib import Path
 from collections import defaultdict
 
+
+import LossEvalHook
 assert torch.__version__.startswith("1.6")
 import detectron2
 from detectron2.utils.logger import setup_logger
@@ -30,7 +38,6 @@ from detectron2.data.datasets import register_coco_instances
 from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultTrainer
 from detectron2.evaluation import COCOEvaluator
-
 from detectron2.checkpoint import DetectionCheckpointer
 
 PATH = os.path.abspath(os.getcwd())
@@ -68,7 +75,7 @@ class CocoTrainer(DefaultTrainer):
 
     def build_hooks(self):
         hooks = super().build_hooks()
-        hooks.insert(-1, LossEvalHook(
+        hooks.insert(-1, LossEvalHook.LossEvalHook(
             cfg.TEST.EVAL_PERIOD,
             self.model,
             build_detection_test_loader(

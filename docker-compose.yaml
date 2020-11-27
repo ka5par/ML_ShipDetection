@@ -1,0 +1,14 @@
+version: "3.6"
+
+#D:/pythonProject/ML_ShipDetection
+services:
+  detectron2:
+    build:
+      context: Docker/
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - type: bind
+        source: /mnt/3896C1E296C1A0AC/pythonProject/ML_ShipDetection
+        target: /application
