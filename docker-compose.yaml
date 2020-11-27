@@ -1,14 +1,19 @@
 version: "3.6"
 
 #D:/pythonProject/ML_ShipDetection
+# //TODO replace bind mount. 
 services:
   detectron2:
     build:
       context: Docker/
       dockerfile: Dockerfile
+    runtime: nvidia
+    shm_size: "8gb"
     ports:
       - "8888:8888"
     volumes:
       - type: bind
         source: /mnt/3896C1E296C1A0AC/pythonProject/ML_ShipDetection
         target: /application
+    environment:
+            - NVIDIA_VISIBLE_DEVICES=all
