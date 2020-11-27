@@ -5,6 +5,7 @@ input/
 output/
 tmp
 Docker/det2/
+test_notebooks/*
 
 *.png
 *.json
