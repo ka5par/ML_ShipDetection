@@ -10,6 +10,7 @@ services:
     runtime: nvidia
     shm_size: "8gb"
     ports:
+      - "6006:6006"
       - "8888:8888"
     volumes:
       - type: bind
