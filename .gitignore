@@ -6,6 +6,7 @@ output/
 tmp
 Docker/det2/
 test_notebooks/*
+submit.csv
 
 *.png
 *.json
