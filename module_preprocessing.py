@@ -1,29 +1,25 @@
-## Preprocessing workflow
-
-# 1. Converting into json cocolike format so it can be used in detectron 2 as a cocolike dataset.
-# Code taken from: https://github.com/pascal1129/kaggle_airbus_ship_detection/blob/master/0_rle_to_coco/1_ships_to_coco.py
-# 2. Convert json into training and testing data.
-# Code taken from: https://github.com/akarazniewicz/cocosplit/blob/master/cocosplit.py
-
-
-## installs
-# pip install -q -U "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
-# pip install -q -U git+git://github.com/waspinator/pycococreator.git@0.2.0
-# pip install -q -U "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
-
-## import
 import datetime
 import fnmatch
 import json
 import os
 import re
 
+#Oldie but goodie, should replace. We only run this thing once...
+try: 
+    from pycococreatortools import pycococreatortools
+except ImportError:
+    import pip
+    print("Ignore warnings")
+    pip.main(['install','q','-U','git+git://github.com/waspinator/pycococreator.git@0.2.0', 'funcy'])
+
+import argparse
+import sys
 import funcy
 import numpy as np
 import pandas as pd
 from PIL import Image
 from matplotlib import pyplot as plt
-from pycococreatortools import pycococreatortools
+
 from skimage.io import imread
 from sklearn.model_selection import train_test_split
 
@@ -132,79 +128,184 @@ def filter_annotations(annotations, images):
     image_ids = funcy.lmap(lambda i: int(i['id']), images)
     return funcy.lfilter(lambda a: int(a['image_id']) in image_ids, annotations)
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Create new annotations')
+    parser.add_argument(
+        '--train_folder',
+        dest='train_folder',
+        help='train data folder (/path/to/train)',
+        default='/input/train_v2/',
+        type=str
+    )
+    parser.add_argument(
+        '--test_folder',
+        dest='test_folder',
+        help='test data folder (/path/to/test)',
+        default="/input/test_v2/",
+        type=str
+    )
+    parser.add_argument(
+        '--seg',
+        dest='seg',
+        help='segmentations (/path/to/segmentation_csv)',
+        default='/input/train_ship_segmentations_v2.csv',
+        type=str
+    )
+    parser.add_argument(
+        '--ann',
+        dest='ann',
+        help='annotations (/path/to/annotations.json)',
+        default='/input/annotations.json',
+        type=str
+    )
+    parser.add_argument(
+        '--train_ann',
+        dest='train_ann',
+        help='segmentations (/path/to/train annotations.json)',
+        default='/input/train_annotations.json',
+        type=str
+    )
+    parser.add_argument(
+        '--test_ann',
+        dest='test_ann',
+        help='test annotations (/path/to/test annotations.json)',
+        default='/input/test_annotations.json',
+        type=str
+    )
+    parser.add_argument(
+        '--ann_bool',
+        dest='ann_bool',
+        help='create new annotations.json file from scratch (not reccomended if already created).',
+        default=False,
+        type=bool
+    )
+    parser.add_argument(
+        '--train_split',
+        dest='train_split',
+        help='Train and test split',
+        default=0.1,
+        type=float
+    )
+    parser.add_argument(
+        '--default',
+        dest='default',
+        help='Run with default settings. --default=True',
+        default=False,
+        type=bool
+    )
+    parser.add_argument(
+        '--dataset_type',
+        dest='dataset_type',
+        help='0 - all images., 1 - equal dataset., 2 - remove all non-annotated.',
+        default=0 ,
+        type=int
+    )
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+    return parser.parse_args()
 
-# Read in the data.
-PATH = os.path.abspath(os.getcwd())
-TRAIN = PATH + '/input/train_v2/'
-TEST = PATH + '/input/test_v2/'
-SEGMENTATION = PATH + '/input/train_ship_segmentations_v2.csv'
-exclude_list = ['6384c3e78.jpg', '13703f040.jpg', '14715c06d.jpg', '33e0ff2d5.jpg',
-                '4d4e09f2a.jpg', '877691df8.jpg', '8b909bb20.jpg', 'a8d99130e.jpg',
-                'ad55c3143.jpg', 'c8260c541.jpg', 'd6c7f17c7.jpg', 'dc3e7c901.jpg',
-                'e44dffe88.jpg', 'ef87bad36.jpg', 'f083256d8.jpg']  # corrupted images
 
+def main(args):
 # 1.
-dataset_train = TRAIN
-csv_train = SEGMENTATION
-IMAGE_DIR = dataset_train
+    # Read in the data.
+    PATH = os.path.abspath(os.getcwd())
 
-df = pd.read_csv(csv_train)
-df = df.dropna(axis=0)  # Drop where there are no ships.
+    TRAIN = PATH + args.train_folder #ARG
+    TEST = PATH + args.test_folder #ARG
+    SEGMENTATION = PATH + args.seg #ARG
+    ANNOTATIONS_JSON = PATH + args.ann #ARG
+    TRAIN_JSON = PATH + args.train_ann #ARG
+    TEST_JSON = PATH + args.test_ann #ARG 
+    create_new_annotations = args.ann_bool #Arg 
+    split_size = args.train_split #ARG 
+    dataset_type = args.dataset_type
+    
+    if create_new_annotations == True:
+        print("Creating new annotations")
+        
+        dataset_train = TRAIN
+        csv_train = SEGMENTATION
+        IMAGE_DIR = dataset_train
 
-INFO = {
-    "description": "Kaggle Dataset",
-    "url": "https://github.com/pascal1129",
-    "version": "0.1.0",
-    "year": 2018,
-    "contributor": "pascal1129",
-    "date_created": datetime.datetime.utcnow().isoformat(' ')
-}
+        df = pd.read_csv(csv_train)
+        df = df.dropna(axis=0)  # Drop where there are no ships.
 
-LICENSES = [
-    {
-        "id": 1,
-        "name": "Attribution-NonCommercial-ShareAlike License",
-        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
-    }
-]
+        INFO = {
+            "description": "Kaggle Dataset",
+            "url": "https://github.com/pascal1129",
+            "version": "0.1.0",
+            "year": 2018,
+            "contributor": "pascal1129",
+            "date_created": datetime.datetime.utcnow().isoformat(' ')
+        }
 
-CATEGORIES = [
-    {
-        'id': 1,
-        'name': 'ship',
-        'supercategory': 'ship',
-    },
-]
+        LICENSES = [
+            {
+                "id": 1,
+                "name": "Attribution-NonCommercial-ShareAlike License",
+                "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+            }
+        ]
 
-test = create_annotations()
+        CATEGORIES = [
+            {
+                'id': 1,
+                'name': 'ship',
+                'supercategory': 'ship',
+            },
+        ]
 
-with open(PATH + '/input/annotations.json', 'w') as output_json_file:
-    json.dump(test, output_json_file, indent=4)
+        test = create_annotations()
 
-# 2.
-ann_file = PATH + '/input/annotations.json'
-train_file = PATH + '/input/train_annotations.json'
-test_file = PATH + '/input/test_annotations.json'
-split_size = 0.1
+        with open(PATH + ANNOTATIONS_JSON, 'w') as output_json_file:
+            json.dump(test, output_json_file, indent=4)
+            
+            
 
-with open(ann_file, 'rt', encoding='UTF-8') as annotations:
-    coco = json.load(annotations)
-    info = coco['info']
-    licenses = coco['licenses']
-    images = coco['images']
-    annotations = coco['annotations']
-    categories = coco['categories']
+    # 2.
+    with open(ANNOTATIONS_JSON, 'rt', encoding='UTF-8') as annotations:
+        print("Creating new train/test split")         
+        coco = json.load(annotations)
+        print("Loaded annotataions file:", ANNOTATIONS_JSON)
+        info = coco['info']
+        licenses = coco['licenses']
+        images = coco['images']
+        annotations = coco['annotations']
+        categories = coco['categories']
 
-    number_of_images = len(images)
+        
+        images_with_annotations = funcy.lmap(lambda a: int(a['image_id']), annotations)
+        if dataset_type == 1:
+            print("Dataset equal annotated/not annotated images.") 
+            
+            img_ids = [int(image['id']) for image in images]
+            img_ids_ann = [int(annotation['image_id']) for annotation in annotations]
+            
+            #Choose the same amount of no annotations.
+ 
+            img_ids_no_ann = np.setdiff1d(img_ids,img_ids_ann)
+            img_ids_no_ann = np.sort(np.random.choice(img_ids_no_ann, len(img_ids_ann))) 
+            
+            images_consolidated = np.append(img_ids_no_ann,np.array(images_with_annotations))
+            images_consolidated = np.sort(images_consolidated)
+            
+            images = funcy.lremove(lambda i: i['id'] not in images_consolidated,
+                               images) # Removes all not in consolidated.
+        elif dataset_type == 2:
+            print("Dataset remove not annotated images.")
+            images = funcy.lremove(lambda i: i['id'] not in images_with_annotations,
+                               images) # Removes all not annotated.
+         
 
-    images_with_annotations = funcy.lmap(lambda a: int(a['image_id']), annotations)
+        val, train = train_test_split(images, train_size=split_size)
+        
+        save_coco(TRAIN_JSON, info, licenses, train, filter_annotations(annotations, train), categories)    
+        save_coco(TEST_JSON, info, licenses, val, filter_annotations(annotations, val), categories)
+        
 
-    images = funcy.lremove(lambda i: i['id'] not in images_with_annotations,
-                           images)  # Removes all images without annotations.
+        print("Saved {} entries in {} and {} in {}".format(len(train), TRAIN_JSON, len(val), TEST_JSON))
 
-    x, y = train_test_split(images, train_size=split_size)
-
-    save_coco(train_file, info, licenses, x, filter_annotations(annotations, x), categories)
-    save_coco(test_file, info, licenses, y, filter_annotations(annotations, y), categories)
-
-    print("Saved {} entries in {} and {} in {}".format(len(x), train_file, len(y), test_file))
+if __name__ == '__main__':
+    args = parse_args()
+    main(args)

@@ -8,6 +8,7 @@ Docker/det2/
 test_notebooks/*
 submit.csv
 rle.csv
+run_equal
 
 # Final model
 !output/last_checkpoint
