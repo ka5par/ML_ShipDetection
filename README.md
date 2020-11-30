@@ -1,6 +1,8 @@
 ## Idea
 
-Create a detectron2 framework for ship detection kaggle competition. So that it will be easily amendable for any instance/object detection 
+Create a detectron2 framework for ship detection on kaggle. 
+
+End goal is to have a easily amendable framework for any instance/object detection.  
 
 # Overview of the project.
 
@@ -21,20 +23,27 @@ https://github.com/Kaggle/kaggle-api
 
 ## Pipeline 
 
-Data Loader > Augmentations (Detectron2) > Instance Segmentation/Object Detection (Detectron2) > Performance Validations on test (Detectron2 - While training) > Predictions on val > Kaggle submission.    
+- Data Loader
+- Classify ship/no ship
+- Augmentations
+- Instance Segmentation/Object Detection (Detectron2) 
+- Performance Validations on test (Detectron2 - While training) 
+- Predictions on validation
+- Kaggle submission
 
 ## Data and Data Augmentation
 
 - Data modelled around architecture inputs. 
-- Flips horisontal and vertical and randomized brightness (to lessen impacts of shadows - widely used in remote sensing pipelines)
+- Flips horisontal and vertical and randomized lightning (to lessen impacts of shadows - widely used in remote sensing pipelines)
 
 ## Architecture
 
-Detectron2, which is pased on pytorch
+- Pytorch
+- Detectron2
 
 ## Validation
 
-Turing training use a small sample of ~4k pictures for validation. 
+During training use a small sample of ~4k pictures for validation. 
 
 ## Deadlines:
 - Intermediate presentation: **Nov 16 - 18**
@@ -49,13 +58,16 @@ Turing training use a small sample of ~4k pictures for validation.
 
 ## Project completion steps 
 
-- [X] Kaggle proptotype 
+- [X] Kaggle proptotype
 - [X] Initial presentation
-- [X] Data Loader
+- [X] Data Loader module
 - [X] Training module
 - [X] Add data Augmentations
-- [ ] Submittion module
-- [ ] Dockerize project
+- [X] Submittion module
+- [ ] Classification module
+- [X] Dockerize project
+- [ ] Argumentize code
+- [ ] Train
 - [ ] Train on cluster
 - [ ] Inference
-- [ ] Submit 
+- [ ] Submit

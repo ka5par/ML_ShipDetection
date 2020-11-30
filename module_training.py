@@ -1,3 +1,16 @@
+## Training workflow
+
+# 1. Load in data 
+# custom data mapping: https://gist.github.com/ortegatron/c0dad15e49c2b74de8bb09a5615d9f6b
+# data augmentations: https://detectron2.readthedocs.io/modules/data_transforms.html
+# 2. Set up configs
+# Documentation: https://detectron2.readthedocs.io/modules/config.html
+# 3. set up custom trainer
+# https://medium.com/@chengweizhang2012/how-to-train-detectron2-with-custom-coco-datasets-4d5170c9f389
+# 4. train
+
+
+
 ## import
 
 # //TODO get rid of nonsense imports. 
@@ -39,29 +52,31 @@ from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 
 from detectron2.projects.deeplab import add_deeplab_config, build_lr_scheduler
 
+## 1.
+
 PATH = os.path.abspath(os.getcwd())
 
-register_coco_instances("my_dataset_train",{},PATH + "/input/test_annotations.json",PATH + "/input/train_v2/") #TRAIN annotations got mixed up -.-
-register_coco_instances("my_dataset_val",{},PATH + "/input/train_annotations.json",PATH + "/input/train_v2/")
+register_coco_instances("my_dataset_train",{},PATH + "/input/train_annotations.json",PATH + "/input/train_v2/")
+register_coco_instances("my_dataset_val",{},PATH + "/input/test_annotations.json",PATH + "/input/train_v2/")
 
 my_dataset_train_metadata = MetadataCatalog.get("my_dataset_train")
 dataset_dicts = DatasetCatalog.get("my_dataset_train")
 
+
+## 2. 
 # //TODO Argumentize code. 
 ## configurations set up
 cfg = get_cfg()
-cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml"))
-cfg.DATASETS.TRAIN = ("my_dataset_train",)
+cfg.DATASETS.TRAIN = ("my_dataset_train",) 
 cfg.DATASETS.TEST = ("my_dataset_val",)
-#cfg.TEST.EVAL_PERIOD = 500 ## // TODO useful to set up eval_hook
+cfg.TEST.EVAL_PERIOD = 500 ## // TODO useful to set up eval_hook?
 cfg.DATALOADER.NUM_WORKERS = 4 ## 4 per gpu
-cfg.SOLVER.IMS_PER_BATCH = 32 ## So many that it fulfills the gpu vram
-cfg.SOLVER.BASE_LR = 0.0025  # pick a good LR
-cfg.SOLVER.MAX_ITER = 500
-cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 
+cfg.SOLVER.IMS_PER_BATCH = 16 
+cfg.SOLVER.BASE_LR = 0.001  # pick a good LR
+cfg.SOLVER.MAX_ITER = 8000
+cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 756 
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ship)
 
-## configuration class
 
 # https://gist.github.com/ortegatron/c0dad15e49c2b74de8bb09a5615d9f6b
 def custom_mapper(dataset_dict):
@@ -84,9 +99,7 @@ def custom_mapper(dataset_dict):
     dataset_dict["instances"] = utils.filter_empty_instances(instances)
     return dataset_dict
 
-
-from detectron2.engine import DefaultTrainer
-from detectron2.evaluation import COCOEvaluator
+# 3.
 class CocoTrainer(DefaultTrainer):
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
@@ -103,20 +116,18 @@ class CocoTrainer(DefaultTrainer):
     def build_lr_scheduler(cls, cfg, optimizer):
         return build_lr_scheduler(cfg, optimizer)
 
-# //TODO make tensorboard work wihth loss_hook. 
+    
+# //TODO make tensorboard work with loss_hook. 
 ## Tensorflow board
 #%load_ext tensorboard
 #%tensorboard --logdir logs
 
-
-# //TODO make it check for checkpoints before ? 
-## Start training.
+# 4.
 os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 trainer = CocoTrainer(cfg) 
 trainer.resume_or_load(resume=True)
 trainer.train() #Trainer will throw out non-annotated pictures. 
 
-## save the training.
 checkpointer = DetectionCheckpointer(trainer.model, save_dir="./")
 checkpointer.save("model_mask_resnet101_rcnn")  # save to save_dir
 

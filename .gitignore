@@ -1,17 +1,23 @@
 # output dir
-instant_test_output
-inference_test_output
+coco_eval/
 input/
-output/
+!output
+output/*
 tmp
 Docker/det2/
 test_notebooks/*
 submit.csv
 rle.csv
 
+# Final model
+!output/last_checkpoint
+
+
 *.png
 *.json
+!output/metrics.json
 *.diff
+
 
 # compilation and distribution
 __pycache__
@@ -25,9 +31,9 @@ dist/
 wheels/
 
 # pytorch/python/numpy formats
-*.pth
 *.pkl
 *.npy
+*.pth
 
 # ipython/jupyter notebooks
 **/.ipynb_checkpoints/
