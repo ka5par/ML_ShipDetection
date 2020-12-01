@@ -16,5 +16,5 @@ class ShipConfirmer:
         # probabilities - tensor array of class probabilities
         predicted_class, tensor, probabilites = learner.predict(image_path)
 
-        ship_probability = probabilites.numpy(1)
+        ship_probability = probabilites.numpy()[1]
         return ship_probability
