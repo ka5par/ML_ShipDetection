@@ -1,62 +1,55 @@
-## Idea
+Instance segmentation framework for kaggle ship detection based Pytorch based toolboxes Detectron2 and Fastai.
 
-Create a detectron2 framework for ship detection on kaggle. 
+Final presentation: https://docs.google.com/presentation/d/1O3DLAQ9SKukEivKACH7JCZqiKiia6ratmZuc1KuovQk/edit?usp=sharing
 
-End goal is to have a easily amendable framework for any instance/object detection.  
+**Setup below:**
 
-# Overview of the project.
+- Requirements:
+    - Unix based OS (Linux/Mac OS).
+    - **Nvidia** GPU with cuda 10.1 installed, and at least 10GB of vram.
+    - Docker (version == 19.03) and docker-compose (version == 3.6)
+    - 40GB of free space: ~10GB for docker image, ~30GB for data
 
-ML_ShipDetection: https://www.kaggle.com/c/airbus-ship-detection
+*All other dependencies are taken care of by docker-compose.
 
-- Chat: **Slack**  
-- Presentation 1: https://docs.google.com/presentation/d/1_MTQrBv8DQUJU2GY-gv-JzXXjAE8QjjIL-3lfwh7tqA/edit?usp=sharing
-- Presentation 2: https://docs.google.com/presentation/d/1O3DLAQ9SKukEivKACH7JCZqiKiia6ratmZuc1KuovQk/edit?usp=sharing
-
-## Data: 30GB of pictures
-
+### Data
 ```
 kaggle competitions download -c airbus-ship-detection
 ```
 
-Use the Kaggle API to download the dataset.
-https://github.com/Kaggle/kaggle-api
+Use the Kaggle API to download the dataset. https://github.com/Kaggle/kaggle-api
 
-## Pipeline 
+Put it in folder named "input"
 
-- Data Loader
-- Classify ship/no ship
-- Augmentations
-- Instance Segmentation/Object Detection (Detectron2) 
-- Performance Validations on test (Detectron2 - While training) 
-- Predictions on validation
-- Kaggle submission
+### Model preprocessing / training and Kaggle submittion 
 
-## Data and Data Augmentation
+```
+docker-compose up 
+```
 
-- Data modelled around architecture inputs. 
-- Flips horisontal and vertical and randomized lightning (to lessen impacts of shadows - widely used in remote sensing pipelines)
+- After image has been set up open the notebook `module_notebook` and run all. 
+- To use tensorboard, use another jupter notebook and call out: ```!tensorboard --logdir=runs --host=0.0.0.0``` and if run on a local machine go to link http://0.0.0.0:6006.  
 
-## Architecture
+# Quick overview: 
 
-- Pytorch
-- Detectron2
+- Data Loader (module_preprocessing)
+- Classifier (FastAI)
+    - Output probability of ship on image.
+    - Resnet34
+- Instance Segmentation/Object Detection (Detectron2)
+    - Output pixel mask of ships.
+    - Augmentations 
+        - Flips (Vertical 50%, Horisontal 50%)
+        - Rotation (-20/+20 random rotation)
+        - Random lighting (0.1 standard deviations -> 
+    - Mask RCNN 50 layer pretrained on Coco .
+        - 3 stage training (256x256,512x512,756x756)
+    - Validation every 5k iterations. 
+- Predictions on validation (module_submit)
+- Kaggle submission (module_submit)
 
-## Validation
 
-During training use a small sample of ~4k pictures for validation. 
-
-## Deadlines:
-- Intermediate presentation: **Nov 16 - 18**
-    - 5 min pres of current sitation, presenting the problem domain, and describing what has been done so far (have you collected all the required data), which problems you have encountered and what are your future steps.
-- Final presentation **Dec 14 - 16**
-    - longer, the above scope but more.
-- Grading
-  -amount and complexity of work performed (40%),
-  -quality of presentation (30%),
-  -degree to which you have completed the initial task (25%),
-  -being on time (5%).
-
-## Project completion steps 
+## Project steps  
 
 - [X] Kaggle proptotype
 - [X] Initial presentation
@@ -64,10 +57,10 @@ During training use a small sample of ~4k pictures for validation.
 - [X] Training module
 - [X] Add data Augmentations
 - [X] Submittion module
-- [ ] Classification module
+- [X] Classification module
 - [X] Dockerize project
-- [ ] Argumentize code
-- [ ] Train
-- [ ] Train on cluster
-- [ ] Inference
-- [ ] Submit
+- [X] Argumentize code
+- [X] Train
+- [-] Train on cluster
+- [X] Inference
+- [X] Submit
