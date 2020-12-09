@@ -1,24 +1,18 @@
 # output dir
 coco_eval/
 input/
-!output
-output/*
+runs/
 tmp
 Docker/det2/
 test_notebooks/*
-submit.csv
+test_ship_proba.csv
+test_classifier.ipynb
 rle.csv
-run_equal
-
-# Final model
-!output/last_checkpoint
-
 
 *.png
 *.json
 !output/metrics.json
 *.diff
-
 
 # compilation and distribution
 __pycache__
@@ -49,12 +43,5 @@ wheels/
 .idea
 .vscode
 
-# project dirs
-/detectron2/model_zoo/configs
-/datasets/*
-!/datasets/*.*
-/projects/*/datasets
-/models
-
-Admin
+# Admin
 *.zip

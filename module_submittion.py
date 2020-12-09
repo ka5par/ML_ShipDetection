@@ -84,9 +84,30 @@ def parse_args():
     parser.add_argument(
         '--score_thres',
         dest='score_thres',
-        help='Score threshold for true value.',
+        help='Mask score threshold for true value (instance segmentation).',
         default=0.8,
         type=float
+    )
+    parser.add_argument(
+        '--ship_proba',
+        dest='ship_proba',
+        help='Ship in picture probability threshold for true value (classification).',
+        default=0.5,
+        type=float
+    )
+    parser.add_argument(
+        '--ship_proba_csv',
+        dest='ship_proba_csv',
+        help='Classification csv file in format {image id, probability}.',
+        default=None,
+        type=str
+    )
+    parser.add_argument(
+        '--anchor_sizes',
+        dest='anchor_sizes',
+        help='Sizes of the anchors (Must be defined if trained otherwise). (small - 16-512, default 32-512)',
+        default=None,
+        type=str
     )
     if len(sys.argv) == 1:
         parser.print_help()
@@ -150,15 +171,28 @@ def main(args):
     dataset_dir = args.test_folder
     csv_origin = 'rle.csv'
     csv_submit = args.submit_csv
+    ship_proba = args.ship_proba
+    csv_probs = args.ship_proba_csv
     
-    print("Start creating files")
-    print(dataset_dir)
+    print("Start creating predictions, dataset from:", dataset_dir)
     test_dataset = create_test_datatset(dataset_dir)
-
+    
+    # Only mask images that include a ship.
+    if csv_probs != None:
+        print("Combining classifier result:",csv_probs)
+        df_probs =  pd.read_csv(csv_probs)
+        df_probs[['image_id','jpg']] = df_probs['file_name'].str.split('.',expand = True)
+        df_probs = df_probs[df_probs['ship_proba'] > ship_proba]
+        test_dataset = [item for item in test_dataset if item['image_id'] in df_probs['image_id'].values]
+    
+    print(test_dataset[0])
+    #int(test_dataset)
     # load model, config changes - predicting 768x768 masks, NMS 0
+    
     DatasetCatalog.register("submit_test", create_test_datatset)
     od_dataset = MetadataCatalog.get("submit_test")
-
+    
+    
     # https://detectron2.readthedocs.io/modules/config.html
     # https://medium.com/@hirotoschwert/digging-into-detectron-2-part-5-6e220d762f9
     cfg = get_cfg()
@@ -170,6 +204,9 @@ def main(args):
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = args.num_classes
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = args.score_thres  
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = args.nms_thres
+    if args.anchor_sizes == 'small':
+        cfg.MODEL.ANCHOR_GENERATOR.SIZES = [[16, 32, 64, 128, 256, 512]]
+    
     predictor = DefaultPredictor(cfg)
 
     outputs = []
@@ -189,7 +226,7 @@ def main(args):
             mask = masks[i,:,:]
             if(mask is None):
                 continue
-            mask_xor = (mask^bg)&mask #bg == 0, = 1, 1^1 & mask
+            mask_xor = (mask^bg)&mask
             area = mask_xor.sum()
             if(area == 0):
                 continue
@@ -229,12 +266,11 @@ def main(args):
 
     print("Detectron2:  %d instances,  %d images"  %(df_submit.shape[0], len(get_im_list(df_submit))))
 
-    df_submit = df_submit[ (df_submit['area']>50) & (df_submit['confidence']>=0.85) ]
-    
+    #df_submit = df_submit[ (df_submit['area']>30) & (df_submit['confidence']>=0.80) ]        
+        
     def generate_final_csv(df_with_ship, dataset_dir = dataset_dir):
         print("Detectron2:  %d instances,  %d images"  %(df_with_ship.shape[0], len(get_im_list(df_with_ship))))
         im_no_ship = get_im_no_ship(df_with_ship, dataset_dir)
-        # write dataframe into .csv file
         df_empty = pd.DataFrame({'ImageId':im_no_ship, 'EncodedPixels':get_empty_list(len(im_no_ship))})
         df_submit = pd.concat([df_with_ship, df_empty], sort=False)
         df_submit.drop(['area','confidence'], axis=1, inplace=True)
