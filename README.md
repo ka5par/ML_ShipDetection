@@ -23,12 +23,11 @@ Put it in folder named `input`
 
 **Model preprocessing / training and Kaggle submittion**
 
-Run 
 ```
 docker-compose up 
 ```
 
-- After docker completes open the notebook `module_notebook` and run all. 
+- In the container, open the notebook `module_notebook` and run all. 
 - To use tensorboard for metrics, use another jupter notebook and call out: ```!tensorboard --logdir=runs --host=0.0.0.0``` and if run on a local machine use a browser to go to http://0.0.0.0:6006.  
 
 ## Quick overview: 
