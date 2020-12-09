@@ -56,11 +56,11 @@ docker-compose up
 - [X] Data Loader module
 - [X] Training module
 - [X] Add data Augmentations
-- [X] Submittion module
+- [X] Submit module
 - [X] Classification module
 - [X] Dockerize project
 - [X] Argumentize code
 - [X] Train
-- [-] Train on cluster
+- [] Train on cluster
 - [X] Inference
 - [X] Submit
