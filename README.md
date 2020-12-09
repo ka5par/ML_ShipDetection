@@ -2,7 +2,7 @@ Instance segmentation framework for kaggle ship detection based Pytorch based to
 
 Final presentation: https://docs.google.com/presentation/d/1O3DLAQ9SKukEivKACH7JCZqiKiia6ratmZuc1KuovQk/edit?usp=sharing
 
-**Setup below:**
+## Setup
 
 - Requirements:
     - Unix based OS (Linux/Mac OS).
@@ -12,16 +12,16 @@ Final presentation: https://docs.google.com/presentation/d/1O3DLAQ9SKukEivKACH7J
 
 *All other dependencies are taken care of by docker-compose.
 
-### Data
+**Data**
 ```
 kaggle competitions download -c airbus-ship-detection
 ```
 
 Use the Kaggle API to download the dataset. https://github.com/Kaggle/kaggle-api
 
-Put it in folder named "input"
+Put it in folder named `input`
 
-### Model preprocessing / training and Kaggle submittion 
+**Model preprocessing / training and Kaggle submittion**
 
 ```
 docker-compose up 
@@ -30,7 +30,7 @@ docker-compose up
 - After image has been set up open the notebook `module_notebook` and run all. 
 - To use tensorboard, use another jupter notebook and call out: ```!tensorboard --logdir=runs --host=0.0.0.0``` and if run on a local machine go to link http://0.0.0.0:6006.  
 
-# Quick overview: 
+## Quick overview: 
 
 - Data Loader (module_preprocessing)
 - Classifier (FastAI)
@@ -49,7 +49,7 @@ docker-compose up
 - Kaggle submission (module_submit)
 
 
-## Project steps  
+## Project  
 
 - [X] Kaggle proptotype
 - [X] Initial presentation
