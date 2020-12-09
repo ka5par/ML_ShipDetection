@@ -1,4 +1,4 @@
-Instance segmentation framework for kaggle ship detection based [^8] Pytorch based toolboxes Detectron2 and Fastai.
+Instance segmentation framework for kaggle ship detection[^8] using Pytorch based toolboxes Detectron2 and Fastai.
 
 Final presentation [^2]
 
