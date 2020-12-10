@@ -27,8 +27,8 @@ Put it in folder named `input`
 docker-compose up 
 ```
 
-- In the container, open the notebook `module_notebook` and run all. 
-- To use tensorboard for metrics, use another jupter notebook and call out: ```!tensorboard --logdir=runs --host=0.0.0.0``` and if run on a local machine use a browser to go to http://0.0.0.0:6006.  
+- Training: In the container, open the notebook `module_notebook` and run all. 
+- Metrics: tensorboard for metrics, use another jupiter notebook and ```!tensorboard --logdir=runs --host=0.0.0.0``` and if run on a local machine use a browser to go to http://0.0.0.0:6006.  
 
 ## Quick overview: 
 
