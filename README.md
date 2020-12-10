@@ -61,7 +61,6 @@ docker-compose up
 - [X] Dockerize project
 - [X] Argumentize code
 - [X] Train
-- [] Train on cluster
 - [X] Inference
 - [X] Submit
 
