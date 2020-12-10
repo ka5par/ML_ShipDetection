@@ -1,7 +1,5 @@
 version: "3.6"
 
-#D:/pythonProject/ML_ShipDetection
-# //TODO replace bind mount. 
 services:
   detectron2:
     build:
@@ -14,7 +12,7 @@ services:
       - "8888:8888"
     volumes:
       - type: bind
-        source: /mnt/3896C1E296C1A0AC/pythonProject/ML_ShipDetection
+        source: ./
         target: /application
     environment:
             - NVIDIA_VISIBLE_DEVICES=all
