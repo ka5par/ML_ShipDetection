@@ -2,6 +2,8 @@ Instance segmentation framework for kaggle ship detection[^8] using Pytorch base
 
 Final presentation [^2]
 
+![image of framework](https://raw.githubusercontent.com/ka5par/ML_ShipDetection/master/Framework.png)
+
 ## Setup
 
 - Requirements:
